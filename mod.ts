@@ -1,12 +1,12 @@
-type Conversions<T extends Record<string, unknown>> = {
+export type Conversions<T extends Record<string, unknown>> = {
     [A in keyof T]?: {
         [B in keyof T]?: (a: T[A]) => T[B]
     }
 }
 
-const flow = <A, B, C>(aToB: (a: A) => B, bToC: (b: B) => C) => (a: A) => bToC(aToB(a))
+export const flow = <A, B, C>(aToB: (a: A) => B, bToC: (b: B) => C) => (a: A) => bToC(aToB(a))
 
-class Convertible<T extends Record<string, unknown>> {
+export class Convertible<T extends Record<string, unknown>> {
     conversions
     constructor(conversions: Conversions<T>) {
         this.conversions = conversions
@@ -36,19 +36,11 @@ class Convertible<T extends Record<string, unknown>> {
             return false
         }
     }
-}
-
-const c = new Convertible<{
-    a: string,
-    b: string,
-    c: string,
-}>(
-    {
-        a: {b: a => a},
-        b: {c: b => b},
+    convert<A extends keyof T, B extends keyof T>(a: A, b: B, value: T[A]) {
+        if (this.findPath(a, b)) {
+            return this.conversions[a]![b]!(value)
+        } else {
+            throw new Error("No path found")
+        }
     }
-)
-
-
-console.log(c.findPath("a", "c"))
-console.log(c.conversions)
+}
