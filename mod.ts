@@ -4,24 +4,51 @@ type Conversions<T extends Record<string, unknown>> = {
     }
 }
 
+const flow = <A, B, C>(aToB: (a: A) => B, bToC: (b: B) => C) => (a: A) => bToC(aToB(a))
+
 class Convertible<T extends Record<string, unknown>> {
     conversions
     constructor(conversions: Conversions<T>) {
         this.conversions = conversions
     }
 
-    convert<A extends keyof T, B extends keyof T>(a: A, b: B, value: T[A]) {
-        return this.conversions[a]?.[b]?.(value) as T[B]
+    findPath<A extends keyof T, B extends keyof T>(a: A, b: B) {
+        const aTo = this.conversions[a]
+        if (aTo) {
+            if (aTo[b]) {
+                return true
+            } else {
+                const findResult = Object.entries(aTo).find(([k]) => {
+                    const kTo = this.conversions[k]
+                    if (kTo) {
+                        if (this.findPath(k, b)) {
+                            aTo[b] = flow(aTo[k]!, kTo[b]!)
+                            return true
+                        }
+                    }
+                })
+                if (findResult) {
+                    return true
+                }
+                return false
+            }
+        } else {
+            return false
+        }
     }
 }
 
-new Convertible<{
-    number: number,
-    string: string
+const c = new Convertible<{
+    a: string,
+    b: string,
+    c: string,
 }>(
     {
-        number: {
-            string: (n: number) => n.toString(),
-        }
+        a: {b: a => a},
+        b: {c: b => b},
     }
 )
+
+
+console.log(c.findPath("a", "c"))
+console.log(c.conversions)
