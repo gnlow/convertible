@@ -36,9 +36,9 @@ export class Convertible<T extends Record<string, unknown>> {
             return false
         }
     }
-    convert<A extends keyof T, B extends keyof T>(a: A, b: B, value: T[A]) {
+    convert<A extends keyof T, B extends keyof T>(a: A, b: B, value: T[A]): T[B] {
         if (this.findPath(a, b)) {
-            return this.conversions[a]![b]!(value)
+            return this.conversions[a]![b]!(value) as T[B]
         } else {
             throw new Error("No path found")
         }
