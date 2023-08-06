@@ -22,8 +22,7 @@ const c = new Convertible<{
     }
 )
 
-
-console.log(c.convert("json", "arr", "[1,2,3]"))
-console.log(c.convert("json", "list", "[1,2,3]"))
-console.log(c.convert("list", "json", "1\n2\n3"))
+console.log(c.convert("json", "arr")("[1,2,3]")) // [1,2,3]
+console.log(c.convert("json", "list")("[1,2,3]")) // `1\n2\n3`
+console.log(c.convert("list", "json")("1\n2\n3")) // `["1","2","3"]`
 ```
